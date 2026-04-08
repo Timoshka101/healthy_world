@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Выбор сложности - Подсчитай калории{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">🧮 Подсчитай калории</h1>
+            <p class="lead">Выберите уровень сложности</p>
+            <a href="{% url 'games_home' %}" class="btn btn-secondary btn-sm">← Вернуться</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">🟢 Легко</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Для начинающих. Простые комбинации продуктов с большой разницей между вариантами ответов.</p>
+                    <ul class="small">
+                        <li>5 вопросов</li>
+                        <li>Большой диапазон ответов</li>
+                        <li>Простые продукты</li>
+                    </ul>
+                    <a href="{% url 'calorie_counter_game' 'easy' %}" class="btn btn-success btn-block mt-3">
+                        Начать
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="card-title mb-0">🟡 Средне</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Для опытных игроков. Средние комбинации с умеренной разницей между ответами.</p>
+                    <ul class="small">
+                        <li>5 вопросов</li>
+                        <li>Средний диапазон ответов</li>
+                        <li>Разнообразные продукты</li>
+                    </ul>
+                    <a href="{% url 'calorie_counter_game' 'medium' %}" class="btn btn-warning btn-block mt-3">
+                        Начать
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">🔴 Сложно</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Для экспертов. Сложные комбинации с малой разницей между вариантами ответов.</p>
+                    <ul class="small">
+                        <li>5 вопросов</li>
+                        <li>Узкий диапазон ответов</li>
+                        <li>Сложные комбинации</li>
+                    </ul>
+                    <a href="{% url 'calorie_counter_game' 'hard' %}" class="btn btn-danger btn-block mt-3">
+                        Начать
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h5>ℹ️ Правила игры:</h5>
+                <ul class="mb-0">
+                    <li>В каждом раунде вам будет 5 вопросов</li>
+                    <li>Для каждого набора продуктов выберите правильное количество калорий</li>
+                    <li>Вам нужно ответить правильно на 60% вопросов для победы</li>
+                    <li>Ваши результаты сохраняются в статистике</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    h1 {
+        color: #2c3e50;
+        font-weight: bold;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}

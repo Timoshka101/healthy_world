@@ -1,0 +1,49 @@
+<div class="modal fade fooddiary-modal" id="createFoodModal" tabindex="-1" aria-labelledby="createFoodModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered fooddiary-modal-dialog">
+        <div class="modal-content fooddiary-modal-card">
+            <div class="modal-header fooddiary-modal-header">
+                <div class="fooddiary-modal-title-group">
+                    <span class="fooddiary-modal-icon" aria-hidden="true">🥣</span>
+                    <div>
+                        <h5 class="modal-title" id="createFoodModalLabel">Создать продукт</h5>
+                        <p class="fooddiary-modal-subtitle">Добавьте новый продукт в базу, чтобы использовать его в дневнике.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body fooddiary-modal-body">
+                <form id="createFoodForm" class="fooddiary-modal-form">
+                    {% csrf_token %}
+                    <div class="fooddiary-field fooddiary-field--full">
+                        <label for="foodName" class="form-label">Название продукта</label>
+                        <input type="text" class="form-control fooddiary-modal-control" id="foodName" name="name" placeholder="Например, овсяная каша" required>
+                    </div>
+
+                    <div class="fooddiary-form-grid fooddiary-form-grid--nutrients">
+                        <div class="fooddiary-field">
+                            <label for="calories" class="form-label">Калории (на 100 г)</label>
+                            <input type="number" step="0.1" class="form-control fooddiary-modal-control" id="calories" name="calories" required>
+                        </div>
+                        <div class="fooddiary-field">
+                            <label for="protein" class="form-label">Белки (на 100 г)</label>
+                            <input type="number" step="0.1" class="form-control fooddiary-modal-control" id="protein" name="protein" required>
+                        </div>
+                        <div class="fooddiary-field">
+                            <label for="fat" class="form-label">Жиры (на 100 г)</label>
+                            <input type="number" step="0.1" class="form-control fooddiary-modal-control" id="fat" name="fat" required>
+                        </div>
+                        <div class="fooddiary-field">
+                            <label for="carbohydrate" class="form-label">Углеводы (на 100 г)</label>
+                            <input type="number" step="0.1" class="form-control fooddiary-modal-control" id="carbohydrate" name="carbohydrate" required>
+                        </div>
+                    </div>
+
+                    <div class="fooddiary-modal-actions">
+                        <button type="button" class="btn btn-light fooddiary-secondary-btn" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-success fooddiary-primary-btn">Сохранить продукт</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}{{ level.title }} - Собери здоровое меню{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">🍽️ {{ level.title }}</h1>
+            <p class="lead">{{ level.description }}</p>
+            <a href="{% url 'menu_builder_levels' %}" class="btn btn-secondary btn-sm">← Вернуться</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Выберите продукты</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <strong>📊 Ваша цель:</strong> {{ level.target_calories }} ккал<br>
+                        <strong>Допустимый диапазон:</strong> {{ level.min_calories }}-{{ level.max_calories }} ккал
+                    </div>
+
+                    <form method="POST" id="menuForm">
+                        {% csrf_token %}
+                        <div class="row">
+                            {% for item in products_with_calories %}
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input product-checkbox" 
+                                           type="checkbox" 
+                                           name="products" 
+                                           value="{{ item.product.id }}" 
+                                           id="product_{{ item.product.id }}"
+                                           data-calories="{{ item.calculated_calories }}">
+                                    <label class="form-check-label" for="product_{{ item.product.id }}">
+                                        <strong>{{ item.product.name }}</strong><br>
+                                        <small class="text-muted">
+                                            {{ item.grams }}г → {{ item.calculated_calories }} ккал
+                                        </small>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                Проверить результат
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">📈 Счетчик калорий</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h4 id="totalCalories" class="text-center mb-0">0 ккал</h4>
+                    </div>
+
+                    <div class="progress mb-3" style="height: 25px;">
+                        <div id="calorieProgress" class="progress-bar bg-info" role="progressbar" 
+                             style="width: 0%" aria-valuenow="0" aria-valuemin="0" 
+                             aria-valuemax="{{ level.max_calories }}"></div>
+                    </div>
+
+                    <div class="small">
+                        <p class="mb-1">
+                            <strong>Минимум:</strong> {{ level.min_calories }} ккал
+                        </p>
+                        <p class="mb-1">
+                            <strong>Максимум:</strong> {{ level.max_calories }} ккал
+                        </p>
+                        <p>
+                            <strong>Цель:</strong> {{ level.target_calories }} ккал
+                        </p>
+                    </div>
+
+                    <div id="selectedProducts" class="mt-3">
+                        <strong>Выбранные продукты:</strong>
+                        <ul id="productList" class="small list-unstyled mt-2"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.product-checkbox');
+    const totalCaloriesEl = document.getElementById('totalCalories');
+    const progressEl = document.getElementById('calorieProgress');
+    const productListEl = document.getElementById('productList');
+    const minCalories = {{ level.min_calories }};
+    const maxCalories = {{ level.max_calories }};
+    const targetCalories = {{ level.target_calories }};
+
+    function updateCalories() {
+        let total = 0;
+        const selectedProducts = [];
+
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                const calories = parseInt(checkbox.dataset.calories);
+                const label = checkbox.nextElementSibling.textContent.trim().split('\n')[0];
+                total += calories;
+                selectedProducts.push({
+                    name: label,
+                    calories: calories
+                });
+            }
+        });
+
+        // Обновляем счетчик
+        totalCaloriesEl.textContent = total + ' ккал';
+
+        // Обновляем цвет в зависимости от диапазона
+        if (total < minCalories) {
+            totalCaloriesEl.className = 'text-center mb-0 text-danger';
+            totalCaloriesEl.innerHTML = total + ' ккал<br><small>Мало</small>';
+        } else if (total > maxCalories) {
+            totalCaloriesEl.className = 'text-center mb-0 text-danger';
+            totalCaloriesEl.innerHTML = total + ' ккал<br><small>Много</small>';
+        } else {
+            totalCaloriesEl.className = 'text-center mb-0 text-success';
+            totalCaloriesEl.innerHTML = total + ' ккал<br><small>Отлично!</small>';
+        }
+
+        // Обновляем прогресс-бар
+        const percentage = Math.min((total / maxCalories) * 100, 100);
+        progressEl.style.width = percentage + '%';
+        progressEl.setAttribute('aria-valuenow', total);
+
+        // Обновляем список продуктов
+        productListEl.innerHTML = '';
+        selectedProducts.forEach(product => {
+            const li = document.createElement('li');
+            li.className = 'mb-1';
+            li.textContent = `${product.name} - ${product.calories} ккал`;
+            productListEl.appendChild(li);
+        });
+    }
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateCalories);
+    });
+
+    // Валидация перед отправкой
+    document.getElementById('menuForm').addEventListener('submit', function(e) {
+        const checkboxes = document.querySelectorAll('.product-checkbox:checked');
+        if (checkboxes.length === 0) {
+            e.preventDefault();
+            alert('Пожалуйста, выберите хотя бы один продукт!');
+        }
+    });
+});
+</script>
+
+<style>
+    h1 {
+        color: #2c3e50;
+        font-weight: bold;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+    
+    .form-check-label {
+        cursor: pointer;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}

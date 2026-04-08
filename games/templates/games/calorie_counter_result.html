@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Результат - Подсчитай калории{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">🎯 Результаты игры</h1>
+            <a href="{% url 'calorie_counter_levels' %}" class="btn btn-secondary btn-sm">← Назад</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            {% if result.is_won %}
+            <div class="alert alert-success" role="alert">
+                <h4 class="alert-heading">🎉 Поздравляем! Вы выиграли!</h4>
+                <p>Вы ответили правильно на {{ correct_answers }} из {{ total_questions }} вопросов.</p>
+            </div>
+            {% else %}
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">❌ К сожалению, вы не прошли игру</h4>
+                <p>Вы ответили правильно на {{ correct_answers }} из {{ total_questions }} вопросов (нужно минимум 60%).</p>
+            </div>
+            {% endif %}
+
+            {% if answers %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5>📝 Подробности по вопросам</h5>
+                    {% for a in answers %}
+                    <div class="mb-3 p-3" style="border-radius:8px; background:#fbfbfb;">
+                        <h6>Вопрос {{ forloop.counter }}:</h6>
+                        <div class="mb-2">
+                            <strong>Продукты:</strong>
+                            <ul class="mb-1">
+                                {% for p in a.products %}
+                                <li>
+                                    {{ p.display_name }} — {{ p.quantity }}
+                                    {% if p.per_100 %}
+                                        <small class="text-muted">(≈ {{ p.per_100 }} ккал на 100 г)</small>
+                                    {% else %}
+                                        <small class="text-muted">(данные отсутствуют)</small>
+                                    {% endif %}
+                                    {% if p.calc %}
+                                        <div class="small text-secondary">— вычислено: {{ p.calc }} ккал</div>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="mb-2">
+                            <strong>Вычисленная сумма по базе:</strong> {{ a.computed_total }} ккал
+                            <br>
+                            <strong>Правильный ответ в задаче:</strong> {{ a.correct }} ккал
+                        </div>
+
+                        <div>
+                            <strong>Варианты ответов:</strong>
+                            <ul class="list-unstyled mt-2">
+                                {% for ch in a.displayed_choices %}
+                                    {% with val=ch.0 label=ch.1 %}
+                                    {% if val == a.selected %}
+                                        {% if val == a.correct %}
+                                            <li class="p-2 mb-1" style="background:#e6f7ea;border-left:4px solid #28a745;border-radius:6px;">✔ {{ label }}</li>
+                                        {% else %}
+                                            <li class="p-2 mb-1" style="background:#fdecea;border-left:4px solid #d9534f;border-radius:6px;">✖ {{ label }}</li>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if val == a.correct %}
+                                            <li class="p-2 mb-1" style="background:#e9f6ff;border-left:4px solid #17a2b8;border-radius:6px;">✔ {{ label }} (правильный)</li>
+                                        {% else %}
+                                            <li class="p-2 mb-1">{{ label }}</li>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% endwith %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card shadow-lg mb-4">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <h3 class="mb-0">{{ correct_answers }}/{{ total_questions }}</h3>
+                                <small class="text-muted">Правильные ответы</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <h3 class="mb-0">{{ result.score }}%</h3>
+                                <small class="text-muted">Процент правильных</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <h3 class="mb-0">
+                                    {% if difficulty == 'easy' %}
+                                        🟢 Легко
+                                    {% elif difficulty == 'medium' %}
+                                        🟡 Средне
+                                    {% else %}
+                                        🔴 Сложно
+                                    {% endif %}
+                                </h3>
+                                <small class="text-muted">Уровень сложности</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mt-4">
+                        <h5>📊 Анализ результатов:</h5>
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar" 
+                                 role="progressbar" 
+                                 style="width: {{ result.score }}%;" 
+                                 aria-valuenow="{{ result.score }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                {{ result.score }}%
+                            </div>
+                        </div>
+
+                        {% if result.score >= 80 %}
+                        <p class="alert alert-success">
+                            <strong>🌟 Отличный результат!</strong> Вы хорошо разбираетесь в калорийности продуктов!
+                        </p>
+                        {% elif result.score >= 60 %}
+                        <p class="alert alert-info">
+                            <strong>👍 Хороший результат!</strong> Попробуйте более сложный уровень в следующий раз.
+                        </p>
+                        {% else %}
+                        <p class="alert alert-warning">
+                            <strong>💪 Попробуйте еще раз!</strong> Практика поможет вам улучшить результаты.
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-4">
+                        <h5>💡 Совет:</h5>
+                        <p>
+                            {% if correct_answers < total_questions %}
+                                Обратите внимание на продукты, на которых вы ошибились. 
+                                Попробуйте запомнить их калорийность и сыграть еще раз!
+                            {% else %}
+                                Отлично! Вы можете попробовать более сложный уровень, чтобы проверить свои знания.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="{% url 'calorie_counter_levels' %}" class="btn btn-primary btn-block">
+                        Сыграть еще раз
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{% url 'games_home' %}" class="btn btn-secondary btn-block">
+                        На главную
+                    </a>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-12">
+                    <a href="{% url 'user_statistics' %}" class="btn btn-info btn-block">
+                        📊 Подробная статистика
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    h1 {
+        color: #2c3e50;
+        font-weight: bold;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Мой профиль - Здоровое питание{% endblock %}
+
+{% block content %}
+<div class="account-page-shell">
+    <section class="account-layout">
+        <article class="account-card account-card--profile">
+            <div class="account-card-head">
+                <span class="account-card-icon">👤</span>
+                <div>
+                    <h1>Мой профиль</h1>
+                    <p>Здесь собраны основные данные аккаунта и краткая информация о вас.</p>
+                </div>
+            </div>
+
+            <div class="account-profile-hero">
+                <div class="account-avatar-frame">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="Аватар" class="avatar-img">
+                    {% else %}
+                        <span>{{ user.username|first|upper }}</span>
+                    {% endif %}
+                </div>
+                <div class="account-profile-copy">
+                    <span class="account-profile-label">Имя пользователя</span>
+                    <strong>{{ user.username }}</strong>
+                    <p>{% if profile.bio %}{{ profile.bio }}{% else %}Пока без описания. Вы можете добавить пару слов о себе в настройках профиля.{% endif %}</p>
+                </div>
+            </div>
+
+            <div class="account-actions">
+                <a href="{% url 'users:profile_edit' %}" class="btn app-auth-submit-btn">Редактировать профиль</a>
+            </div>
+        </article>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Выбор уровня - Собери здоровое меню{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">🍽️ Собери здоровое меню</h1>
+            <p class="lead">Выберите уровень сложности</p>
+            <a href="{% url 'games_home' %}" class="btn btn-secondary btn-sm">← Вернуться</a>
+        </div>
+    </div>
+
+    {% if levels %}
+        <div class="row">
+            {% for level in levels %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">{{ level.title }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ level.description }}</p>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted">Сложность: 
+                                {% if level.difficulty == 'easy' %}
+                                    <span class="badge bg-success">Легко</span>
+                                {% elif level.difficulty == 'medium' %}
+                                    <span class="badge bg-warning">Средне</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Сложно</span>
+                                {% endif %}
+                            </small>
+                        </div>
+
+                        <div class="alert alert-info small mb-3">
+                            <strong>Цель:</strong> {{ level.target_calories }} ккал<br>
+                            <strong>Диапазон:</strong> {{ level.min_calories }}-{{ level.max_calories }} ккал
+                        </div>
+
+                        <p class="small"><strong>Продукты на выбор:</strong> {{ level.products.count }}</p>
+
+                        <a href="{% url 'menu_builder_game' level.id %}" class="btn btn-primary btn-block">
+                            Начать уровень
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            <strong>Уровни еще не созданы!</strong>
+            <p>Пожалуйста, обратитесь к администратору для добавления уровней.</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    h1 {
+        color: #2c3e50;
+        font-weight: bold;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}

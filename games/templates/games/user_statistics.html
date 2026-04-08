@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Статистика игр{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="mb-2">Статистика игр</h1>
+            <p class="text-muted mb-0">Здесь собраны результаты по «Змейке», «Витаминам» и ранее созданным интерактивным тестам.</p>
+        </div>
+        <a href="{% url 'games_home' %}" class="btn btn-outline-secondary">← Вернуться в игры</a>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">🐍 Змейка</h5>
+                </div>
+                <div class="card-body">
+                    <p class="display-6 mb-1">{{ snake_total }}</p>
+                    <p class="text-muted">Всего попыток</p>
+                    <p class="mb-1"><strong>Побед:</strong> {{ snake_wins }}</p>
+                    <p class="mb-1"><strong>Win rate:</strong> {{ snake_winrate }}%</p>
+                    <p class="mb-0"><strong>Средний результат:</strong> {{ snake_avg_score }} очков</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header text-white" style="background:#f08c2e;">
+                    <h5 class="card-title mb-0">🍊 Баланс витаминов</h5>
+                </div>
+                <div class="card-body">
+                    <p class="display-6 mb-1">{{ vitamin_total }}</p>
+                    <p class="text-muted">Всего попыток</p>
+                    <p class="mb-1"><strong>Побед:</strong> {{ vitamin_wins }}</p>
+                    <p class="mb-1"><strong>Win rate:</strong> {{ vitamin_winrate }}%</p>
+                    <p class="mb-0"><strong>Среднее время:</strong> {{ vitamin_avg_duration }} сек</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">🍽️ Собери здоровое меню</h5>
+                </div>
+                <div class="card-body">
+                    <p class="display-6 mb-1">{{ menu_total }}</p>
+                    <p class="text-muted">Всего попыток</p>
+                    <p class="mb-1"><strong>Побед:</strong> {{ menu_wins }}</p>
+                    <p class="mb-1"><strong>Win rate:</strong> {{ menu_winrate }}%</p>
+                    <p class="mb-0"><strong>Средний результат:</strong> {{ menu_avg_score }} очков</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">🧮 Подсчитай калории</h5>
+                </div>
+                <div class="card-body">
+                    <p class="display-6 mb-1">{{ calorie_total }}</p>
+                    <p class="text-muted">Всего попыток</p>
+                    <p class="mb-1"><strong>Побед:</strong> {{ calorie_wins }}</p>
+                    <p class="mb-1"><strong>Win rate:</strong> {{ calorie_winrate }}%</p>
+                    <p class="mb-0"><strong>Средний результат:</strong> {{ calorie_avg_score }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="h4 mb-3">История последних попыток</h2>
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#snake-history">🐍 Змейка</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#vitamin-history">🍊 Витамины</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#menu-history">🍽️ Собери меню</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#calorie-history">🧮 Подсчитай калории</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="snake-history">
+            {% if snake_results %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Дата</th>
+                            <th>Уровень</th>
+                            <th>Калории</th>
+                            <th>Баланс БЖУ</th>
+                            <th>Результат</th>
+                            <th>Очки</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in snake_results %}
+                        <tr>
+                            <td>{{ result.finished_at|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <strong>{{ result.level.title }}</strong><br>
+                                <small class="text-muted">{{ result.level.get_meal_type_display }} · {{ result.level.get_difficulty_display }}</small>
+                            </td>
+                            <td>{{ result.total_calories }} ккал</td>
+                            <td>
+                                Б {{ result.protein_percent }}%<br>
+                                Ж {{ result.fat_percent }}%<br>
+                                У {{ result.carb_percent }}%
+                            </td>
+                            <td>
+                                {% if result.is_win %}
+                                <span class="badge bg-success">Победа</span>
+                                {% else %}
+                                <span class="badge bg-danger">{{ result.get_lose_reason_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ result.score }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">Попыток в «Змейке» пока нет. <a href="{% url 'games_home' %}">Перейти к игре</a>.</div>
+            {% endif %}
+        </div>
+
+        <div class="tab-pane fade" id="vitamin-history">
+            {% if vitamin_results %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Дата</th>
+                            <th>Игра</th>
+                            <th>Длительность</th>
+                            <th>Финальные значения</th>
+                            <th>Результат</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in vitamin_results %}
+                        <tr>
+                            <td>{{ result.finished_at|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <strong>{{ result.level.title }}</strong><br>
+                                <small class="text-muted">{{ result.level.code }}</small>
+                            </td>
+                            <td>{{ result.duration_seconds }} сек</td>
+                            <td>
+                                {% for vitamin in result.selected_vitamin_rows %}
+                                {{ vitamin.short_label }} {{ vitamin.value }}{% if not forloop.last %}<br>{% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% if result.is_win %}
+                                <span class="badge bg-success">Победа</span>
+                                {% else %}
+                                <span class="badge bg-danger">{{ result.get_lose_reason_display }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">Попыток в «Баланс витаминов» пока нет. <a href="{% url 'games_home' %}">Перейти к игре</a>.</div>
+            {% endif %}
+        </div>
+
+        <div class="tab-pane fade" id="menu-history">
+            {% if menu_results %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Дата</th>
+                            <th>Уровень</th>
+                            <th>Калории</th>
+                            <th>Результат</th>
+                            <th>Очки</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in menu_results %}
+                        <tr>
+                            <td>{{ result.completed_at|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                {% if result.level %}
+                                <strong>{{ result.level.title }}</strong><br>
+                                <small class="text-muted">{{ result.level.get_difficulty_display }}</small>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>{{ result.total_calories }} ккал</td>
+                            <td>
+                                {% if result.is_won %}
+                                <span class="badge bg-success">Победа</span>
+                                {% else %}
+                                <span class="badge bg-danger">Поражение</span>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ result.score }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">Вы ещё не играли в «Собери здоровое меню». <a href="{% url 'menu_builder_levels' %}">Начать</a>.</div>
+            {% endif %}
+        </div>
+
+        <div class="tab-pane fade" id="calorie-history">
+            {% if calorie_results %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Дата</th>
+                            <th>Сложность</th>
+                            <th>Результат</th>
+                            <th>Очки</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in calorie_results %}
+                        <tr>
+                            <td>{{ result.completed_at|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                {% if result.formatted_difficulty %}
+                                {{ result.formatted_difficulty.emoji_text }}
+                                <span class="badge bg-{{ result.formatted_difficulty.badge_color }}">{{ result.formatted_difficulty.label }}</span>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if result.is_won %}
+                                <span class="badge bg-success">Победа</span>
+                                {% else %}
+                                <span class="badge bg-danger">Поражение</span>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ result.score }}%</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">Вы ещё не играли в «Подсчитай калории». <a href="{% url 'calorie_counter_levels' %}">Начать</a>.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

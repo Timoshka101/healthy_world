@@ -1,0 +1,38 @@
+<div class="modal fade fooddiary-modal" id="addFoodModal" tabindex="-1" aria-labelledby="addFoodModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered fooddiary-modal-dialog fooddiary-modal-dialog--compact">
+        <div class="modal-content fooddiary-modal-card">
+            <div class="modal-header fooddiary-modal-header">
+                <div class="fooddiary-modal-title-group">
+                    <span class="fooddiary-modal-icon" aria-hidden="true">🍽️</span>
+                    <div>
+                        <h5 class="modal-title" id="addFoodModalLabel">Добавить продукт</h5>
+                        <p class="fooddiary-modal-subtitle">Укажите порцию и добавьте продукт в дневник за выбранную дату.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body fooddiary-modal-body">
+                <form id="addFoodForm" class="fooddiary-modal-form">
+                    {% csrf_token %}
+                    <input type="hidden" id="foodId" name="food_id">
+                    <input type="hidden" id="addDate" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+
+                    <div class="fooddiary-modal-preview">
+                        <span class="fooddiary-modal-preview-label">Продукт</span>
+                        <strong id="selectedFoodLabel">Выберите продукт из поиска</strong>
+                    </div>
+
+                    <div class="fooddiary-field">
+                        <label for="quantity" class="form-label">Количество (г)</label>
+                        <input type="number" step="1" class="form-control fooddiary-modal-control" id="quantity" name="quantity" placeholder="Например, 150" required>
+                    </div>
+
+                    <div class="fooddiary-modal-actions">
+                        <button type="button" class="btn btn-light fooddiary-secondary-btn" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-success fooddiary-primary-btn">Добавить в дневник</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Игры - Здоровое питание{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'games/snake_game.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="game-hub-page">
+    <section class="game-hub-hero">
+        <div class="game-hub-copy">
+            <span class="game-hub-eyebrow">Игровой раздел</span>
+            <h1>Игры про здоровое питание</h1>
+            <p>
+                Небольшие игры, которые помогают лучше разбираться в калориях, продуктах и
+                балансе БЖУ в более живом и понятном формате.
+            </p>
+        </div>
+
+        <div class="game-hub-summary">
+            {% if user.is_authenticated and user_stats %}
+            <div class="game-hub-pill-row">
+                <div class="game-hub-pill">
+                    <span>Змейка</span>
+                    <strong>{{ user_stats.snake_wins }}/{{ user_stats.snake_total }}</strong>
+                </div>
+                <div class="game-hub-pill">
+                    <span>Витамины</span>
+                    <strong>{{ user_stats.vitamin_wins }}/{{ user_stats.vitamin_total }}</strong>
+                </div>
+                <div class="game-hub-pill">
+                    <span>Собери меню</span>
+                    <strong>{{ user_stats.menu_wins }}/{{ user_stats.menu_total }}</strong>
+                </div>
+                <div class="game-hub-pill">
+                    <span>Подсчитай калории</span>
+                    <strong>{{ user_stats.calorie_wins }}/{{ user_stats.calorie_total }}</strong>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="game-hub-card">
+                {% if user.is_authenticated and snake_stats %}
+                <h2>Ваш прогресс</h2>
+                <div class="game-hub-inline-stat">
+                    <span>Змейка</span>
+                    <strong>
+                        {{ snake_stats.total_attempts }} игр · {{ snake_stats.total_wins }} побед ·
+                        {{ snake_stats.win_rate }}% win rate · лучший результат {{ snake_stats.best_results.level_1 }}
+                    </strong>
+                </div>
+                {% if vitamin_stats %}
+                <div class="game-hub-inline-stat">
+                    <span>Витамины</span>
+                    <strong>
+                        {{ vitamin_stats.total_attempts }} игр · {{ vitamin_stats.total_wins }} побед ·
+                        {{ vitamin_stats.win_rate }}% win rate
+                    </strong>
+                </div>
+                {% endif %}
+                <a href="{% url 'user_statistics' %}" class="btn btn-sm game-hub-stats-link">Открыть статистику</a>
+                {% elif user.is_authenticated %}
+                <h2>Ваш прогресс</h2>
+                <p class="mb-3">Сыграйте первый уровень, и здесь появится история прохождений и личная статистика.</p>
+                <a href="{% url 'user_statistics' %}" class="btn btn-sm game-hub-stats-link">Открыть статистику</a>
+                {% else %}
+                <h2>Сохранение результатов</h2>
+                <p class="mb-0">Играть можно сразу, а история и статистика начнут сохраняться после входа в аккаунт.</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section class="game-switcher">
+        <button type="button" class="game-switcher-tab is-active" data-game-tab="snake">
+            <span>🐍</span>
+            <strong>Змейка</strong>
+        </button>
+        <button type="button" class="game-switcher-tab" data-game-tab="vitamins">
+            <span>🍊</span>
+            <strong>Витамины</strong>
+        </button>
+    </section>
+
+    <section class="game-spotlights">
+        <article class="game-spotlight is-active" data-game-panel="snake">
+            <div class="game-spotlight-art game-spotlight-art-snake">
+                <div class="game-spotlight-overlay">
+                    <h2>Змейка про здоровое питание</h2>
+                    <p>
+                        Игра запускается во всплывающем окне. Прогресс по калориям, БЖУ и таймер теперь
+                        всегда расположен прямо над игровым полем.
+                    </p>
+                </div>
+            </div>
+
+            <div class="game-spotlight-controls">
+                <button type="button" class="btn btn-success btn-lg" id="snake-open-btn">Играть</button>
+                <button type="button" class="btn btn-outline-success btn-lg" id="snake-open-levels-btn">Уровни</button>
+                <button type="button" class="btn btn-outline-light btn-lg" id="snake-open-help-btn">Справка</button>
+            </div>
+
+            <div class="game-spotlight-meta">
+                <div>
+                    <span>Текущий уровень</span>
+                    <strong id="snake-selected-level-label">Загрузка уровней...</strong>
+                </div>
+                <div>
+                    <span>Цель</span>
+                    <strong id="snake-selected-level-goal">0 ккал</strong>
+                </div>
+                <div>
+                    <span>Баланс БЖУ</span>
+                    <strong id="snake-selected-level-balance">Б 0% / Ж 0% / У 0%</strong>
+                </div>
+            </div>
+        </article>
+
+        <article class="game-spotlight" data-game-panel="vitamins">
+            <div class="game-spotlight-art game-spotlight-art-vitamins">
+                <div class="vitamin-spotlight-scene" aria-hidden="true">
+                    <div class="vitamin-spotlight-products">
+                        <span class="vitamin-spotlight-product">🧈</span>
+                        <span class="vitamin-spotlight-product">🫑</span>
+                        <span class="vitamin-spotlight-product">🐟</span>
+                        <span class="vitamin-spotlight-product">🥬</span>
+                    </div>
+                    <div class="vitamin-spotlight-panel">
+                        <div class="vitamin-spotlight-panel-head">Баланс</div>
+                        <div class="vitamin-spotlight-mini-bar vitamin-spotlight-mini-bar-a">
+                            <span>A</span>
+                            <i></i>
+                        </div>
+                        <div class="vitamin-spotlight-mini-bar vitamin-spotlight-mini-bar-c">
+                            <span>C</span>
+                            <i></i>
+                        </div>
+                        <div class="vitamin-spotlight-mini-bar vitamin-spotlight-mini-bar-d">
+                            <span>D</span>
+                            <i></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="game-spotlight-overlay">
+                    <h2>Баланс витаминов</h2>
+                    <p>
+                        Выберите три витамина перед стартом и удерживайте их в безопасной зоне,
+                        вовремя нажимая на подходящие продукты.
+                    </p>
+                </div>
+            </div>
+
+            <div class="game-spotlight-controls">
+                <button type="button" class="btn btn-success btn-lg" id="vitamin-open-btn">Играть</button>
+                <button type="button" class="btn btn-outline-success btn-lg" id="vitamin-open-selector-btn">Выбрать витамины</button>
+            </div>
+
+            <div class="game-spotlight-meta">
+                <div>
+                    <span>Выбрано</span>
+                    <strong id="vitamin-selected-summary">A / C / D</strong>
+                </div>
+                <div>
+                    <span>Норма</span>
+                    <strong>40–70</strong>
+                </div>
+                <div>
+                    <span>Цель</span>
+                    <strong>Продержаться 30 секунд</strong>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <section class="game-hub-bottom">
+        <article class="game-info-card">
+            <div class="game-section-head">
+                <div>
+                    <span class="game-hub-eyebrow">Интерактивные тесты</span>
+                </div>
+            </div>
+
+            <div class="interactive-tests-grid">
+                <article class="interactive-test-card">
+                    <span class="interactive-test-icon">🍽️</span>
+                    <h3>Собери здоровое меню</h3>
+                    <p>Подберите продукты так, чтобы уложиться в диапазон калорий и собрать удачное меню.</p>
+                    <a href="{% url 'menu_builder_levels' %}" class="btn btn-primary">Открыть тест</a>
+                </article>
+
+                <article class="interactive-test-card">
+                    <span class="interactive-test-icon">🧮</span>
+                    <h3>Подсчитай калории</h3>
+                    <p>Оцените калорийность набора продуктов и выберите правильный ответ из нескольких вариантов.</p>
+                    <a href="{% url 'calorie_counter_levels' %}" class="btn btn-success">Открыть тест</a>
+                </article>
+            </div>
+        </article>
+    </section>
+</div>
+
+<div class="snake-modal-backdrop is-hidden" id="snake-game-modal">
+    <div class="snake-modal-window snake-modal-window-game" role="dialog" aria-modal="true" aria-labelledby="snake-game-modal-title">
+        <div class="snake-modal-header">
+            <div>
+                <span class="game-hub-eyebrow">Игровое окно</span>
+                <h2 id="snake-game-modal-title">Змейка</h2>
+            </div>
+            <div class="snake-modal-header-actions">
+                <button type="button" class="btn btn-outline-light btn-sm" id="snake-modal-levels-btn">Уровни</button>
+                <button type="button" class="btn btn-outline-light btn-sm" id="snake-modal-help-btn">Справка</button>
+                <button type="button" class="snake-modal-close" data-close-modal="snake-game-modal" aria-label="Закрыть">×</button>
+            </div>
+        </div>
+
+        <div class="snake-modal-level-line">
+            <div>
+                <span>Уровень</span>
+                <strong id="snake-level-name">Загрузка...</strong>
+            </div>
+            <div>
+                <span>Цель</span>
+                <strong id="snake-level-calories">0 ккал</strong>
+            </div>
+            <div>
+                <span>Баланс</span>
+                <strong id="snake-level-target-balance">Б 0% / Ж 0% / У 0%</strong>
+            </div>
+            <div>
+                <span>Статус</span>
+                <strong id="snake-status-chip" class="snake-status-chip is-idle">Ожидание старта</strong>
+            </div>
+        </div>
+
+        <div class="snake-modal-hud">
+            <div class="snake-hud-card snake-hud-card-timer">
+                <span>Таймер</span>
+                <strong id="snake-timer-display">--:--</strong>
+            </div>
+
+            <article class="snake-hud-card snake-hud-card-wide">
+                <div class="snake-metric-topline">
+                    <span>Калории</span>
+                    <strong id="snake-calorie-value">0 / 0 ккал</strong>
+                </div>
+                <div class="snake-meter" id="snake-calorie-meter">
+                    <div class="snake-meter-target"></div>
+                    <div class="snake-meter-fill"></div>
+                </div>
+                <p id="snake-calorie-help" class="snake-metric-help">Выберите уровень, чтобы увидеть целевой диапазон.</p>
+            </article>
+
+            <article class="snake-hud-card">
+                <div class="snake-metric-topline">
+                    <span>Белки</span>
+                    <strong id="snake-protein-value">0%</strong>
+                </div>
+                <div class="snake-meter" id="snake-protein-meter">
+                    <div class="snake-meter-target"></div>
+                    <div class="snake-meter-fill"></div>
+                </div>
+                <p id="snake-protein-help" class="snake-metric-help">Цель: 0%</p>
+            </article>
+
+            <article class="snake-hud-card">
+                <div class="snake-metric-topline">
+                    <span>Жиры</span>
+                    <strong id="snake-fat-value">0%</strong>
+                </div>
+                <div class="snake-meter" id="snake-fat-meter">
+                    <div class="snake-meter-target"></div>
+                    <div class="snake-meter-fill"></div>
+                </div>
+                <p id="snake-fat-help" class="snake-metric-help">Цель: 0%</p>
+            </article>
+
+            <article class="snake-hud-card">
+                <div class="snake-metric-topline">
+                    <span>Углеводы</span>
+                    <strong id="snake-carb-value">0%</strong>
+                </div>
+                <div class="snake-meter" id="snake-carb-meter">
+                    <div class="snake-meter-target"></div>
+                    <div class="snake-meter-fill"></div>
+                </div>
+                <p id="snake-carb-help" class="snake-metric-help">Цель: 0%</p>
+            </article>
+        </div>
+
+        <div class="snake-board-shell snake-board-shell-modal">
+            <canvas id="snake-canvas" width="640" height="640" aria-label="Игровое поле змейки"></canvas>
+            <div class="snake-food-layer" id="snake-food-layer" aria-hidden="true"></div>
+            <div class="snake-overlay" id="snake-overlay">
+                <div class="snake-overlay-card" id="snake-overlay-card">
+                    <span class="game-hub-eyebrow">Игровое окно</span>
+                    <h3>Нажмите «Играть» и начните уровень</h3>
+                    <p class="mb-0">Здесь будут появляться результаты, победа или причина поражения.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="snake-modal-footer">
+            <div class="snake-runtime-info">
+                <div class="snake-runtime-badge" id="snake-speed-indicator">Скорость: 0.0</div>
+                <div class="snake-runtime-badge" id="snake-effect-indicator">Эффекты: нет</div>
+                <div class="snake-runtime-badge" id="snake-score-indicator">Очки: 0</div>
+            </div>
+
+            <div class="snake-modal-footer-actions">
+                <button type="button" class="btn btn-success" id="snake-primary-action-btn">Играть</button>
+                <button type="button" class="btn btn-outline-success" id="snake-retry-btn">Переиграть</button>
+                <button type="button" class="btn btn-outline-secondary" data-close-modal="snake-game-modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="snake-modal-backdrop is-hidden" id="snake-levels-modal">
+    <div class="snake-modal-window snake-modal-window-side" role="dialog" aria-modal="true" aria-labelledby="snake-levels-modal-title">
+        <div class="snake-modal-header snake-modal-header-light">
+            <div>
+                <span class="game-hub-eyebrow">Уровни</span>
+                <h2 id="snake-levels-modal-title">Выбор уровня</h2>
+            </div>
+            <button type="button" class="snake-modal-close snake-modal-close-dark" data-close-modal="snake-levels-modal" aria-label="Закрыть">×</button>
+        </div>
+        <div id="snake-level-list" class="snake-level-list">
+            <div class="snake-placeholder-card">Загружаю уровни...</div>
+        </div>
+    </div>
+</div>
+
+<div class="snake-modal-backdrop is-hidden" id="snake-help-modal">
+    <div class="snake-modal-window snake-modal-window-side" role="dialog" aria-modal="true" aria-labelledby="snake-help-modal-title">
+        <div class="snake-modal-header snake-modal-header-light">
+            <div>
+                <span class="game-hub-eyebrow">Справка</span>
+                <h2 id="snake-help-modal-title">Полезная и вредная еда</h2>
+            </div>
+            <button type="button" class="snake-modal-close snake-modal-close-dark" data-close-modal="snake-help-modal" aria-label="Закрыть">×</button>
+        </div>
+
+        <div class="snake-help-block">
+            <p>
+                Управление: стрелки или WASD. Разворот назад запрещён. Во время действия колбы
+                змейка двигается случайно 5 секунд.
+            </p>
+        </div>
+
+        <div class="snake-legend" id="snake-legend"></div>
+    </div>
+</div>
+
+<div class="snake-modal-backdrop is-hidden" id="vitamin-selector-modal">
+    <div class="snake-modal-window snake-modal-window-side" role="dialog" aria-modal="true" aria-labelledby="vitamin-selector-modal-title">
+        <div class="snake-modal-header snake-modal-header-light">
+            <div>
+                <span class="game-hub-eyebrow">Выбор витаминов</span>
+                <h2 id="vitamin-selector-modal-title">Выберите 3 витамина</h2>
+            </div>
+            <button type="button" class="snake-modal-close snake-modal-close-dark" data-close-modal="vitamin-selector-modal" aria-label="Закрыть">×</button>
+        </div>
+
+        <div class="vitamin-selector-modal-body">
+            <div class="vitamin-selector" id="vitamin-selector"></div>
+            <div class="vitamin-selection-note" id="vitamin-selection-note">
+                Перед стартом выберите три витамина для текущего раунда.
+            </div>
+
+            <div class="vitamin-action-row">
+                <button type="button" class="btn btn-success" data-close-modal="vitamin-selector-modal">Готово</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="snake-modal-backdrop is-hidden" id="vitamin-game-modal">
+    <div class="snake-modal-window vitamin-modal-window" role="dialog" aria-modal="true" aria-labelledby="vitamin-game-modal-title">
+        <div class="snake-modal-header snake-modal-header-light">
+            <div>
+                <span class="game-hub-eyebrow">Мини-игра</span>
+                <h2 id="vitamin-game-modal-title">Баланс витаминов</h2>
+            </div>
+            <button type="button" class="snake-modal-close snake-modal-close-dark" data-close-modal="vitamin-game-modal" aria-label="Закрыть">×</button>
+        </div>
+
+        <div class="vitamin-modal-grid">
+            <div class="vitamin-main-column">
+                <section class="vitamin-panel-card vitamin-panel-card-hero">
+                    <div class="vitamin-avatar" id="vitamin-avatar">
+                        <div class="vitamin-avatar-face" id="vitamin-avatar-face">🙂</div>
+                        <div class="vitamin-avatar-text">
+                            <strong id="vitamin-status-title">Баланс спокоен</strong>
+                            <span id="vitamin-status-text">Нажмите «Старт», чтобы начать игру.</span>
+                        </div>
+                    </div>
+
+                    <div class="vitamin-summary-row">
+                        <div class="vitamin-summary-card">
+                            <span>Таймер</span>
+                            <strong id="vitamin-timer-display">01:00</strong>
+                        </div>
+                        <div class="vitamin-summary-card">
+                            <span>Безопасная зона</span>
+                            <strong id="vitamin-normal-zone-display">40–70</strong>
+                        </div>
+                    </div>
+
+                    <div class="vitamin-result-box" id="vitamin-result-box">
+                        Нажмите «Старт», чтобы начать раунд.
+                    </div>
+                </section>
+
+                <section class="vitamin-panel-card vitamin-panel-card-main">
+                    <div class="vitamin-section-head">
+                        <h3>Витамины в игре</h3>
+                    </div>
+
+                    <div class="vitamin-bars" id="vitamin-bars"></div>
+
+                    <div class="vitamin-products-block">
+                        <div class="vitamin-section-head vitamin-section-head-products">
+                            <h3>Продукты</h3>
+                        </div>
+                        <div class="vitamin-products" id="vitamin-products"></div>
+                    </div>
+
+                    <div class="vitamin-save-note" id="vitamin-save-note">
+                        {% if user.is_authenticated %}
+                        Результат сохранится в статистике после завершения.
+                        {% else %}
+                        Играть можно без входа, но результаты сохраняются только для авторизованных пользователей.
+                        {% endif %}
+                    </div>
+                </section>
+            </div>
+
+            <aside class="vitamin-side-column">
+                <section class="vitamin-panel-card vitamin-panel-card-rules">
+                    <div class="vitamin-section-head">
+                        <h3>Правила</h3>
+                    </div>
+                    <ul class="vitamin-rules-list">
+                        <li>Все витамины постепенно снижаются со временем.</li>
+                        <li>Если любой витамин упадёт ниже 20, будет авитаминоз.</li>
+                        <li>Если любой витамин поднимется выше 90, будет гипервитаминоз.</li>
+                        <li>Победа засчитывается, если вы продержались до конца таймера.</li>
+                    </ul>
+
+                    <div class="vitamin-action-row vitamin-action-row-side">
+                        <button type="button" class="btn btn-success" id="vitamin-start-btn">Старт</button>
+                        <button type="button" class="btn btn-outline-success" id="vitamin-restart-btn">Рестарт</button>
+                        <button type="button" class="btn btn-outline-secondary" data-close-modal="vitamin-game-modal">Закрыть</button>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </div>
+</div>
+
+{{ snake_frontend_config|json_script:"snake-frontend-config" }}
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'games/snake_game.js' %}"></script>
+<script src="{% static 'games/vitamin_game.js' %}"></script>
+{% endblock %}

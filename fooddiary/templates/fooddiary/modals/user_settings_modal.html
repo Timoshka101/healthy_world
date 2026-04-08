@@ -1,0 +1,64 @@
+<div class="modal fade fooddiary-modal" id="userSettingsModal" tabindex="-1" aria-labelledby="userSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg fooddiary-modal-dialog">
+        <div class="modal-content fooddiary-modal-card">
+            <div class="modal-header fooddiary-modal-header">
+                <div class="fooddiary-modal-title-group">
+                    <span class="fooddiary-modal-icon" aria-hidden="true">⚙️</span>
+                    <div>
+                        <h5 class="modal-title" id="userSettingsModalLabel">Настройки дневника</h5>
+                        <p class="fooddiary-modal-subtitle">Заполните профиль, чтобы дневник точнее считал вашу дневную норму.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body fooddiary-modal-body">
+                <form method="post" action="{% url 'fooddiary:user_settings' %}" class="fooddiary-modal-form">
+                    {% csrf_token %}
+                    <div class="fooddiary-form-grid">
+                        <div class="fooddiary-field">
+                            <label for="gender" class="form-label">Пол</label>
+                            <select class="form-control fooddiary-modal-control" id="gender" name="gender" required>
+                                <option value="male" {% if settings.gender == 'male' %}selected{% endif %}>Мужской</option>
+                                <option value="female" {% if settings.gender == 'female' %}selected{% endif %}>Женский</option>
+                            </select>
+                        </div>
+                        <div class="fooddiary-field">
+                            <label for="birth_date" class="form-label">Дата рождения</label>
+                            <input type="date" class="form-control fooddiary-modal-control" id="birth_date" name="birth_date" value="{{ settings.birth_date|date:'Y-m-d' }}" required>
+                        </div>
+                        <div class="fooddiary-field">
+                            <label for="height" class="form-label">Рост (см)</label>
+                            <input type="number" class="form-control fooddiary-modal-control" id="height" name="height" placeholder="Например, 175" value="{{ settings.height_cm }}" required>
+                        </div>
+                        <div class="fooddiary-field">
+                            <label for="weight" class="form-label">Вес (кг)</label>
+                            <input type="number" step="0.1" class="form-control fooddiary-modal-control" id="weight" name="weight" placeholder="Например, 72.5" value="{{ settings.weight_kg }}" required>
+                        </div>
+                        <div class="fooddiary-field">
+                            <label for="activity_level" class="form-label">Уровень активности</label>
+                            <select class="form-control fooddiary-modal-control" id="activity_level" name="activity_level" required>
+                                <option value="sedentary" {% if settings.activity_level == 'sedentary' %}selected{% endif %}>Сидячий</option>
+                                <option value="light" {% if settings.activity_level == 'light' %}selected{% endif %}>Легкая активность</option>
+                                <option value="moderate" {% if settings.activity_level == 'moderate' %}selected{% endif %}>Умеренная активность</option>
+                                <option value="active" {% if settings.activity_level == 'active' %}selected{% endif %}>Высокая активность</option>
+                            </select>
+                        </div>
+                        <div class="fooddiary-field">
+                            <label for="goal" class="form-label">Цель</label>
+                            <select class="form-control fooddiary-modal-control" id="goal" name="goal" required>
+                                <option value="lose" {% if settings.goal == 'lose' %}selected{% endif %}>Снижение веса</option>
+                                <option value="maintain" {% if settings.goal == 'maintain' %}selected{% endif %}>Поддержание веса</option>
+                                <option value="gain" {% if settings.goal == 'gain' %}selected{% endif %}>Набор массы</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="fooddiary-modal-actions">
+                        <button type="button" class="btn btn-light fooddiary-secondary-btn" data-bs-dismiss="modal">Закрыть</button>
+                        <button type="submit" class="btn btn-success fooddiary-primary-btn">Сохранить настройки</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

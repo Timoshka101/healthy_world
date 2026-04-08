@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Вход - Здоровое питание{% endblock %}
+
+{% block content %}
+<div class="account-page-shell">
+    <section class="account-card account-card--auth">
+        <div class="account-card-head">
+            <span class="account-card-icon">🔐</span>
+            <div>
+                <h1>Вход</h1>
+                <p>Войдите, чтобы вести дневник питания, редактировать профиль и сохранять результаты игр.</p>
+            </div>
+        </div>
+
+        <form method="post" class="app-auth-form">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="app-form-error app-form-error--block">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+            {% endif %}
+
+            {% include 'users/includes/form_field.html' with field=form.username %}
+            {% include 'users/includes/form_field.html' with field=form.password %}
+
+            <button type="submit" class="btn app-auth-submit-btn">Войти</button>
+        </form>
+
+        <p class="account-inline-link">Нет аккаунта? <a href="{% url 'users:register' %}">Зарегистрироваться</a></p>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Дневник питания - Здоровое питание{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="fooddiary-page">
+    <section class="fooddiary-layout">
+        <div class="fooddiary-main-card">
+            <div class="fooddiary-date-banner">
+                <button id="prevDay" class="btn fooddiary-date-btn" type="button" aria-label="Предыдущий день">‹</button>
+                <strong id="currentDateDisplay">{{ formatted_date }}</strong>
+                <input type="hidden" id="selectedDate" value="{{ selected_date|date:'Y-m-d' }}">
+                <button id="nextDay" class="btn fooddiary-date-btn" type="button" aria-label="Следующий день">›</button>
+            </div>
+
+            <h1 class="fooddiary-main-title">Ваш дневник питания</h1>
+
+            {% if diary_entries %}
+            <div class="fooddiary-entry-list">
+                {% for entry in diary_entries %}
+                <article class="fooddiary-entry-card">
+                    <div class="fooddiary-entry-main">
+                        <div>
+                            <h3>{{ entry.food.name }}</h3>
+                            <p>{{ entry.quantity_grams|floatformat:0 }} г</p>
+                        </div>
+                    </div>
+                    <div class="fooddiary-entry-metrics">
+                        {% with nutrition=entry.calculate_nutrition %}
+                        <strong>{{ nutrition.calories|floatformat:0 }} ккал</strong>
+                        <span>Б {{ nutrition.protein|floatformat:1 }} · Ж {{ nutrition.fat|floatformat:1 }} · У {{ nutrition.carbohydrate|floatformat:1 }}</span>
+                        {% endwith %}
+                    </div>
+                    <button type="button" class="btn btn-sm fooddiary-delete-btn delete-entry-btn" data-entry-id="{{ entry.id }}" aria-label="Удалить запись">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="fooddiary-empty-state">
+                <div class="fooddiary-empty-icon">🥗</div>
+                <h3>Дневник питания пуст</h3>
+                <p>Начните добавлять продукты, чтобы отслеживать свой прогресс.</p>
+            </div>
+            {% endif %}
+
+            <div class="fooddiary-action-row">
+                <button class="btn btn-success fooddiary-action-btn" data-bs-toggle="modal" data-bs-target="#createFoodModal">Создать продукт</button>
+                <button class="btn btn-outline-success fooddiary-action-btn" data-bs-toggle="modal" data-bs-target="#userSettingsModal">Настройки дневника</button>
+            </div>
+
+            <div class="fooddiary-progress-section">
+                <h2>Ваш прогресс за день</h2>
+                <div class="fooddiary-progress-grid">
+                    <div class="fooddiary-progress-card">
+                        <span>Калории</span>
+                        <strong>{{ total_nutrition.calories|floatformat:0 }} ккал</strong>
+                        <div class="fooddiary-summary-track">
+                            <i class="fooddiary-progress-fill-calories" style="width: {{ progress_percentages.calories|floatformat:0 }}%;"></i>
+                        </div>
+                        <small>Цель: {{ target_calories|floatformat:0 }} ккал</small>
+                    </div>
+                    <div class="fooddiary-progress-card">
+                        <span>Белки</span>
+                        <strong>{{ total_nutrition.protein|floatformat:1 }} г</strong>
+                        <div class="fooddiary-summary-track">
+                            <i class="fooddiary-progress-fill-protein" style="width: {{ progress_percentages.protein|floatformat:0 }}%;"></i>
+                        </div>
+                        <small>Цель: {{ target_macros.protein|floatformat:0 }} г</small>
+                    </div>
+                    <div class="fooddiary-progress-card">
+                        <span>Жиры</span>
+                        <strong>{{ total_nutrition.fat|floatformat:1 }} г</strong>
+                        <div class="fooddiary-summary-track">
+                            <i class="fooddiary-progress-fill-fat" style="width: {{ progress_percentages.fat|floatformat:0 }}%;"></i>
+                        </div>
+                        <small>Цель: {{ target_macros.fat|floatformat:0 }} г</small>
+                    </div>
+                    <div class="fooddiary-progress-card">
+                        <span>Углеводы</span>
+                        <strong>{{ total_nutrition.carbohydrate|floatformat:1 }} г</strong>
+                        <div class="fooddiary-summary-track">
+                            <i class="fooddiary-progress-fill-carb" style="width: {{ progress_percentages.carbohydrate|floatformat:0 }}%;"></i>
+                        </div>
+                        <small>Цель: {{ target_macros.carbohydrate|floatformat:0 }} г</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <aside class="fooddiary-sidebar">
+            <div class="fooddiary-side-card fooddiary-search-card">
+                <h3>Поиск продуктов</h3>
+                <input type="text" id="searchInput" class="form-control fooddiary-search-input" placeholder="Что искать?">
+                <div id="searchResults" class="list-group fooddiary-search-results"></div>
+            </div>
+        </aside>
+    </section>
+</div>
+
+<!-- Скрытые элементы с URL -->
+<input type="hidden" id="createFoodUrl" value="{% url 'fooddiary:create_food' %}">
+<input type="hidden" id="searchFoodsUrl" value="{% url 'fooddiary:search_foods' %}">
+<input type="hidden" id="addFoodUrl" value="{% url 'fooddiary:add_food_to_diary' %}">
+<input type="hidden" id="deleteEntryUrlBase" value="/fooddiary/delete_entry/">
+
+{% include 'fooddiary/modals/create_food_modal.html' %}
+{% include 'fooddiary/modals/add_food_to_diary_modal.html' %}
+{% include 'fooddiary/modals/user_settings_modal.html' %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="{% static 'fooddiary/script.js' %}"></script>
+{% endblock %}

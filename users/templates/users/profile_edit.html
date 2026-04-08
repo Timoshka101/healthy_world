@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактировать профиль - Здоровое питание{% endblock %}
+
+{% block content %}
+<div class="account-page-shell">
+    <section class="account-layout">
+        <article class="account-card account-card--profile">
+            <div class="account-card-head">
+                <span class="account-card-icon">✏️</span>
+                <div>
+                    <h1>Редактирование профиля</h1>
+                    <p>Обновите имя пользователя, описание и аватар в более аккуратном и понятном формате.</p>
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="app-auth-form account-edit-form">
+                {% csrf_token %}
+
+                {% if user_form.non_field_errors or profile_form.non_field_errors %}
+                    <div class="app-form-error app-form-error--block">
+                        {% for error in user_form.non_field_errors %}{{ error }}{% endfor %}
+                        {% for error in profile_form.non_field_errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+
+                {% include 'users/includes/form_field.html' with field=user_form.username %}
+
+                <div class="account-avatar-editor">
+                    <div class="account-avatar-editor-preview">
+                        <span class="app-form-label">Текущий аватар</span>
+                        <div class="account-avatar-frame account-avatar-frame--editor">
+                            {% if profile.avatar %}
+                                <img src="{{ profile.avatar.url }}" alt="Аватар" class="avatar-img">
+                            {% else %}
+                                <span>{{ request.user.username|first|upper }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="account-avatar-editor-fields">
+                        <div class="app-form-field{% if profile_form.avatar.errors %} has-error{% endif %}">
+                            <label for="{{ profile_form.avatar.id_for_label }}" class="app-form-label">{{ profile_form.avatar.label }}</label>
+                            {{ profile_form.avatar }}
+                            <div class="app-form-help">Выберите квадратное или вертикальное изображение. Подойдут JPG, PNG и другие обычные форматы.</div>
+                            {% for error in profile_form.avatar.errors %}
+                                <div class="app-form-error">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <label class="account-avatar-remove">
+                            {{ profile_form.remove_avatar }}
+                            <span>Удалить текущую аватарку</span>
+                        </label>
+                    </div>
+                </div>
+
+                {% include 'users/includes/form_field.html' with field=profile_form.bio %}
+
+                <div class="account-actions">
+                    <a href="{% url 'users:profile' %}" class="btn app-auth-cancel-btn">Отмена</a>
+                    <button type="submit" class="btn app-auth-submit-btn">Сохранить изменения</button>
+                </div>
+            </form>
+        </article>
+    </section>
+</div>
+{% endblock %}

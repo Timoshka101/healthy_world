@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Здоровое питание - Главная{% endblock %}
+
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="home-page">
+    <section class="home-hero">
+        <div class="home-hero-copy">
+            <span class="home-hero-eyebrow">Онлайн-сервис о здоровом питании и полезных привычках</span>
+            <h1>Здоровое питание, которое легче держать под контролем</h1>
+            <p>
+                Ведите дневник питания, отслеживайте калории и БЖУ, настраивайте личные цели
+                и закрепляйте знания через простые интерактивные игры.
+            </p>
+
+            <div class="home-hero-actions">
+                <a href="{% url 'fooddiary:fooddiary_home' %}" class="btn home-primary-btn">Открыть дневник питания</a>
+                <a href="{% url 'games_home' %}" class="btn home-secondary-btn">Перейти в игры</a>
+            </div>
+
+            <div class="home-hero-pills">
+                <span>Калории</span>
+                <span>БЖУ</span>
+                <span>Дневник по дням</span>
+                <span>Игры по питанию</span>
+            </div>
+        </div>
+
+        <div class="home-hero-visual" aria-hidden="true">
+            <div class="home-hero-stage">
+                <div class="home-hero-card home-hero-card--wide">
+                    <span class="home-hero-card-icon">🥗</span>
+                    <div>
+                        <strong>Дневник питания</strong>
+                        <p>Записывайте рацион и следите за дневной нормой.</p>
+                    </div>
+                </div>
+                <div class="home-hero-card-row">
+                    <div class="home-hero-card">
+                        <span class="home-hero-card-icon">📊</span>
+                        <strong>Калории и БЖУ</strong>
+                    </div>
+                    <div class="home-hero-card">
+                        <span class="home-hero-card-icon">🎮</span>
+                        <strong>Игры о питании</strong>
+                    </div>
+                </div>
+                <div class="home-hero-balance">
+                    <div class="home-balance-line">
+                        <span>Калории</span>
+                        <i><b style="width: 68%;"></b></i>
+                    </div>
+                    <div class="home-balance-line">
+                        <span>Белки</span>
+                        <i><b style="width: 54%;"></b></i>
+                    </div>
+                    <div class="home-balance-line">
+                        <span>Полезные привычки</span>
+                        <i><b style="width: 78%;"></b></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="home-feature-grid">
+        <article class="home-feature-card">
+            <span class="home-feature-icon">🗓️</span>
+            <h2>Дневник по дням</h2>
+            <p>Добавляйте продукты, смотрите итог за день и отслеживайте, насколько рацион близок к цели.</p>
+        </article>
+
+        <article class="home-feature-card">
+            <span class="home-feature-icon">⚖️</span>
+            <h2>Личные ориентиры</h2>
+            <p>Настройте дневник под себя: пол, возраст, рост, вес, активность и цель питания.</p>
+        </article>
+
+        <article class="home-feature-card">
+            <span class="home-feature-icon">🍎</span>
+            <h2>Обучение через практику</h2>
+            <p>Закрепляйте знания о калориях, витаминах и сбалансированном рационе в игровых заданиях.</p>
+        </article>
+    </section>
+
+    <section class="home-flow">
+        <div class="home-flow-intro">
+            <span class="home-hero-eyebrow">Как это работает</span>
+            <h2>Одна платформа для ежедневного контроля питания</h2>
+        </div>
+
+        <div class="home-flow-grid">
+            <article class="home-flow-card">
+                <strong>1. Заполняйте дневник</strong>
+                <p>Ищите продукты, добавляйте порции и собирайте картину дня без лишней рутины.</p>
+            </article>
+            <article class="home-flow-card">
+                <strong>2. Анализируйте рацион</strong>
+                <p>Смотрите калории, белки, жиры и углеводы в понятном формате прямо на странице дневника.</p>
+            </article>
+            <article class="home-flow-card">
+                <strong>3. Закрепляйте знания</strong>
+                <p>Переходите в игры и тренируйте навык выбирать более полезные и сбалансированные решения.</p>
+            </article>
+        </div>
+    </section>
+</div>
+{% endblock %}

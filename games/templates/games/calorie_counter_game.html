@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Подсчитай калории - Игра{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">🧮 Подсчитай калории</h1>
+            <a href="{% url 'calorie_counter_levels' %}" class="btn btn-secondary btn-sm">← Вернуться к выбору сложности</a>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        <strong>❌ Ошибка:</strong> {{ error }}
+        <br>
+        <a href="{% url 'calorie_counter_levels' %}" class="btn btn-secondary btn-sm mt-2">Вернуться</a>
+    </div>
+    {% elif question %}
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-info text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Вопрос {{ current_question }}/{{ total_questions }}</h5>
+                        <span class="badge bg-light text-dark">
+                            {% if difficulty == 'easy' %}
+                                🟢 Легко
+                            {% elif difficulty == 'medium' %}
+                                🟡 Средне
+                            {% else %}
+                                🔴 Сложно
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-4" style="height: 25px;">
+                        {% widthratio current_question total_questions 100 as progress_width %}
+                        <div class="progress-bar bg-info" role="progressbar" 
+                             style="width: {{ progress_width }}%" 
+                             aria-valuenow="{{ current_question }}" 
+                             aria-valuemin="1" 
+                             aria-valuemax="{{ total_questions }}">
+                            {{ progress_width }}%
+                        </div>
+                    </div>
+
+                    <h5 class="mb-4">📦 Какое количество калорий в этом наборе?</h5>
+
+                    <div class="alert alert-light border mb-4">
+                        <h6>Продукты:</h6>
+                        <ul class="mb-0">
+                            {% for ph in product_hints %}
+                            <li>
+                                {{ ph.display_name }} - {{ ph.quantity }}
+                                <span class="hint" data-tooltip="{% if ph.per_100 %}≈ {{ ph.per_100 }} ккал на 100 г{% else %}Данных нет{% endif %}">
+                                    ⓘ
+                                </span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <form method="POST" id="answerForm">
+                        {% csrf_token %}
+                        
+                        <div class="form-group mb-4">
+                            {% for value, label in form.answer.field.choices %}
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" 
+                                       type="radio" 
+                                       name="answer" 
+                                       id="answer_{{ forloop.counter }}" 
+                                       value="{{ value }}" 
+                                       required>
+                                <label class="form-check-label option-label" for="answer_{{ forloop.counter }}">
+                                    {{ label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg btn-block">
+                            Ответить
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="alert alert-warning" role="alert">
+        <strong>Загрузка...</strong>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    h1 {
+        color: #2c3e50;
+        font-weight: bold;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+    
+    .option-label {
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        font-size: 1.1rem;
+    }
+
+    .hint {
+        display: inline-block;
+        margin-left: 8px;
+        width: 22px;
+        height: 22px;
+        line-height: 20px;
+        text-align: center;
+        border-radius: 50%;
+        background: #eef6ff;
+        color: #12546a;
+        border: 1px solid #cfe8ff;
+        font-size: 0.95rem;
+        cursor: default;
+        transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s;
+        position: relative;
+    }
+    .hint:hover, .hint:focus {
+        transform: translateY(-2px) scale(1.06);
+        background: #d7f0ff;
+        box-shadow: 0 4px 12px rgba(18,84,106,0.12);
+    }
+
+    /* Custom tooltip */
+    .hint[data-tooltip]:hover::after, .hint[data-tooltip]:focus::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: calc(100% + 10px);
+        background: rgba(9,30,45,0.95);
+        color: #fff;
+        padding: 8px 10px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        z-index: 40;
+        box-shadow: 0 6px 18px rgba(2,6,23,0.35);
+    }
+    .hint[data-tooltip]:hover::before, .hint[data-tooltip]:focus::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: calc(100% + 2px);
+        border-width: 6px;
+        border-style: solid;
+        border-color: rgba(9,30,45,0.95) transparent transparent transparent;
+        z-index: 40;
+    }
+    
+    .form-check-input:checked ~ .option-label {
+        background-color: #d4edda;
+        border-left: 4px solid #28a745;
+        padding-left: 8px;
+    }
+    
+    .form-check-input:hover ~ .option-label {
+        background-color: #f0f0f0;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('answerForm');
+    const options = document.querySelectorAll('input[name="answer"]');
+    
+    // Перемешиваем порядок опций при каждой загрузке
+    options.forEach(option => {
+        option.addEventListener('change', function() {
+            // Визуальная обратная связь при выборе
+            options.forEach(o => o.parentElement.parentElement.classList.remove('selected'));
+            this.parentElement.parentElement.classList.add('selected');
+        });
+    });
+    
+    // Валидация перед отправкой
+    form.addEventListener('submit', function(e) {
+        const selectedOption = document.querySelector('input[name="answer"]:checked');
+        if (!selectedOption) {
+            e.preventDefault();
+            alert('Пожалуйста, выберите ответ!');
+        }
+    });
+});
+</script>
+{% endblock %}

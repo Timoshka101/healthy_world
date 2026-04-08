@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Результат - Собери здоровое меню{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">🎯 Результаты</h1>
+            <a href="{% url 'menu_builder_levels' %}" class="btn btn-secondary btn-sm">← Назад к уровням</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            {% if result.is_won %}
+            <div class="alert alert-success" role="alert">
+                <h4 class="alert-heading">🎉 Поздравляем! Вы выиграли!</h4>
+                <p>Вы успешно собрали меню с калорийностью {{ result.total_calories }} ккал!</p>
+            </div>
+            {% else %}
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">❌ Увы, неудача</h4>
+                <p>Ваше меню содержит {{ result.total_calories }} ккал, что выходит за допустимый диапазон {{ level.min_calories }}-{{ level.max_calories }} ккал.</p>
+            </div>
+            {% endif %}
+
+            <div class="card shadow-lg mb-4">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <h3 class="mb-0">{{ result.total_calories }}</h3>
+                                <small class="text-muted">Собранные калории</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <h3 class="mb-0">{{ result.score }}</h3>
+                                <small class="text-muted">Полученные очки</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-2">
+                                <h3 class="mb-0">{{ level.target_calories }}</h3>
+                                <small class="text-muted">Целевые калории</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mt-4">
+                        <h5>📊 Ваше меню:</h5>
+                        <ul class="list-group">
+                            {% for product in selected_products %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ product.name }}
+                                <span class="badge bg-primary rounded-pill">{{ product.calories }} ккал</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5>📈 Статистика:</h5>
+                        <p class="mb-1">
+                            <strong>Целевой диапазон:</strong> {{ level.min_calories }}-{{ level.max_calories }} ккал
+                        </p>
+                        <p class="mb-1">
+                            <strong>Разница от цели:</strong> 
+                            {% if result.is_won %}
+                                <span class="text-success">{{ total_calories|add:level.target_calories|add:"-"|add:result.total_calories }} ккал</span>
+                            {% else %}
+                                <span class="text-danger">Не в диапазоне</span>
+                            {% endif %}
+                        </p>
+                        <p>
+                            <strong>Сложность:</strong> 
+                            {% if level.difficulty == 'easy' %}
+                                <span class="badge bg-success">Легко</span>
+                            {% elif level.difficulty == 'medium' %}
+                                <span class="badge bg-warning">Средне</span>
+                            {% else %}
+                                <span class="badge bg-danger">Сложно</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <a href="{% url 'menu_builder_levels' %}" class="btn btn-primary btn-block">
+                        Выбрать другой уровень
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{% url 'games_home' %}" class="btn btn-secondary btn-block">
+                        На главную
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    h1 {
+        color: #2c3e50;
+        font-weight: bold;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
