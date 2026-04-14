@@ -65,6 +65,7 @@
                         <strong>{{ total_nutrition.calories|floatformat:0 }} ккал</strong>
                         <div class="fooddiary-summary-track">
                             <i class="fooddiary-progress-fill-calories" style="width: {{ progress_percentages.calories|floatformat:0 }}%;"></i>
+                            <b class="fooddiary-progress-percent{% if progress_percentages.calories < 50 %} is-on-empty-track{% endif %}">{{ progress_percentages.calories|floatformat:0 }}%</b>
                         </div>
                         <small>Цель: {{ target_calories|floatformat:0 }} ккал</small>
                     </div>
@@ -73,6 +74,7 @@
                         <strong>{{ total_nutrition.protein|floatformat:1 }} г</strong>
                         <div class="fooddiary-summary-track">
                             <i class="fooddiary-progress-fill-protein" style="width: {{ progress_percentages.protein|floatformat:0 }}%;"></i>
+                            <b class="fooddiary-progress-percent{% if progress_percentages.protein < 50 %} is-on-empty-track{% endif %}">{{ progress_percentages.protein|floatformat:0 }}%</b>
                         </div>
                         <small>Цель: {{ target_macros.protein|floatformat:0 }} г</small>
                     </div>
@@ -81,6 +83,7 @@
                         <strong>{{ total_nutrition.fat|floatformat:1 }} г</strong>
                         <div class="fooddiary-summary-track">
                             <i class="fooddiary-progress-fill-fat" style="width: {{ progress_percentages.fat|floatformat:0 }}%;"></i>
+                            <b class="fooddiary-progress-percent{% if progress_percentages.fat < 50 %} is-on-empty-track{% endif %}">{{ progress_percentages.fat|floatformat:0 }}%</b>
                         </div>
                         <small>Цель: {{ target_macros.fat|floatformat:0 }} г</small>
                     </div>
@@ -89,6 +92,7 @@
                         <strong>{{ total_nutrition.carbohydrate|floatformat:1 }} г</strong>
                         <div class="fooddiary-summary-track">
                             <i class="fooddiary-progress-fill-carb" style="width: {{ progress_percentages.carbohydrate|floatformat:0 }}%;"></i>
+                            <b class="fooddiary-progress-percent{% if progress_percentages.carbohydrate < 50 %} is-on-empty-track{% endif %}">{{ progress_percentages.carbohydrate|floatformat:0 }}%</b>
                         </div>
                         <small>Цель: {{ target_macros.carbohydrate|floatformat:0 }} г</small>
                     </div>

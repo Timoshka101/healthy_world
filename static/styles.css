@@ -532,6 +532,19 @@ body {
   margin: 0 auto;
 }
 
+.account-card-body {
+  padding: 30px;
+}
+
+.account-card-body .account-inline-link {
+  margin-top: 18px;
+}
+
+.account-card-body .app-auth-submit-btn {
+  align-self: flex-start;
+  min-width: 150px;
+}
+
 .account-profile-hero {
   display: grid;
   grid-template-columns: 148px 1fr;
@@ -845,6 +858,7 @@ body {
 }
 
 .fooddiary-summary-track {
+  position: relative;
   height: 18px;
   overflow: hidden;
   border-radius: 8px;
@@ -872,6 +886,25 @@ body {
 
 .fooddiary-progress-fill-carb {
   background: linear-gradient(90deg, #d05c42 0%, #ef8668 100%);
+}
+
+.fooddiary-progress-percent {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(23, 45, 35, 0.42);
+}
+
+.fooddiary-progress-percent.is-on-empty-track {
+  color: #20302c;
+  text-shadow: none;
 }
 
 .fooddiary-layout {
@@ -1707,6 +1740,10 @@ body {
   .account-actions {
     padding-left: 18px;
     padding-right: 18px;
+  }
+
+  .account-card-body {
+    padding: 22px 18px 24px;
   }
 
   .app-auth-modal-header .modal-title,
